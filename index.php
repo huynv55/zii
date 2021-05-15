@@ -1,0 +1,4 @@
+<?php
+// access denied
+die();
+?>
