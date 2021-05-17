@@ -120,6 +120,13 @@ class Router {
 		}
 	}
 
+	public static function group($prefix, $hander) {
+		if (empty(self::$routers)) {
+			self::$routers = new \Phroute\Phroute\RouteCollector();
+		}
+		self::$routers->group(['prefix' => $prefix], $hander);
+	}
+
 	public static function defaultMap($controller_name, $action_name) {
 		if (empty(self::$routers)) {
 			self::$routers = new \Phroute\Phroute\RouteCollector();
@@ -139,6 +146,7 @@ class Router {
 		$uri = $this->getRequestUri();
 		$this->uri = trim($uri, "/");
 
+		// document here : https://github.com/mrjgreen/phroute
 		if (empty(self::$routers)) {
 			self::$routers = new \Phroute\Phroute\RouteCollector();
 		}

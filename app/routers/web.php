@@ -1,7 +1,8 @@
 <?php
 /*
-* default route
+* Website route
 */
 Router::defaultMap('Home', 'Index');
-Router::get('/{page}','Home', 'Index');
+Router::get('/{slug}','Home', 'Index');
+Router::get('/{slug}/{page}','Home', 'Index');
 ?>

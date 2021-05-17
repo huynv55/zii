@@ -6,9 +6,10 @@ class ActionIndex extends HomeController {
         parent::__construct();
     }
 
-    public function response($page = 'home') {
+    public function response($slug = 'home', $page = 'about') {
         Log::debug("--------------------------------------");
         Log::debug("Load Home controller and action index");
+        Log::debug("Slug : ".$slug);
         Log::debug("Page : ".$page);
         Log::debug("--------------------------------------");
         $this->response->view("pages/home.phtml");
