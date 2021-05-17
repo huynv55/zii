@@ -3,5 +3,5 @@
 * default route
 */
 Router::defaultMap('Home', 'Index');
-Router::any('/{page}','Home', 'Index');
+Router::get('/{page}','Home', 'Index');
 ?>

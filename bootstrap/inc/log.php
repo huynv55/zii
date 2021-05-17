@@ -5,6 +5,7 @@
 class Log {
     public static function debug($msg) {
         $config = Config::get('log');
+        file_put_contents(dirname(__FILE__)."/../../".$config['path_debug'], "", FILE_APPEND);
         $logfile = realpath(dirname(__FILE__)."/../../".$config['path_debug']);
         error_log(date('Y-m-d H:i:s').' : ', 3, $logfile);
         error_log(print_r($msg, true), 3, $logfile);
@@ -13,6 +14,7 @@ class Log {
 
     public static function error($msg) {
         $config = Config::get('log');
+        file_put_contents(dirname(__FILE__)."/../../".$config['path_error'], "", FILE_APPEND);
         $logfile = realpath(dirname(__FILE__)."/../../".$config['path_error']);
         error_log(date('Y-m-d H:i:s').' : ', 3, $logfile);
         error_log(print_r($msg, true), 3, $logfile);

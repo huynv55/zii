@@ -7,7 +7,11 @@ class ActionIndex extends HomeController {
     }
 
     public function response($page = 'home') {
-        $this->response->view("pages/home.phtml", ["controller" => "Home", "action" => "index", 'page' => $page]);
+        Log::debug("--------------------------------------");
+        Log::debug("Load Home controller and action index");
+        Log::debug("Page : ".$page);
+        Log::debug("--------------------------------------");
+        $this->response->view("pages/home.phtml");
     }
 }
 ?>
