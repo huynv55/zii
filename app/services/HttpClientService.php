@@ -1,38 +1,37 @@
 <?php
 
-class HttpClient {
+class HttpClientService {
 	const BASE_URL = '';
 	const CURL_TIMEOUT = 360;
 
 	public static function client($headers = []) {
-		$client = new \GuzzleHttp\Client([
-			// Base URI is used with relative requests
-			'base_uri' => self::BASE_URL,
-			// You can set any number of default request options.\
-			'timeout'  => self::CURL_TIMEOUT,
-			'headers' => $headers
-		]);
+		$client = new HttpClient(['base_url' => self::BASE_URL, 'timeout' => self::CURL_TIMEOUT], $headers);
 		return $client;
 	}
 
 	public static function get($url, $query_data = null, $headers = null) {
-		return self::client()->request('GET', $url, ['query' => $query_data, 'headers' => $headers]);
+		$result = self::client()->get($url, $query_data, $headers);
+		return $result->done();
 	}
 
 	public static function post($url, $post_fields = null, $headers = null) {
-		return self::client()->request('POST', $url, ['form_params' => $post_fields, 'headers' => $headers]);
+		$result = self::client()->post($url, $post_fields, $headers);
+		return $result->done();
 	}
 
 	public static function put($url, $put_fields = null, $headers = null) {
-		return self::client()->request('PUT', $url, ['form_params' => $post_fields, 'headers' => $headers]);
+		$result = self::client()->put($url, $put_fields, $headers);
+		return $result->done();
 	}
 
 	public static function delete($url, $delete_fields = null, $headers = null) {
-		return self::client()->request('DELETE', $url, ['form_params' => $delete_fields, 'headers' => $headers]);
+		$result = self::client()->delete($url, $delete_fields, $headers);
+		return $result->done();
 	}
 
 	public static function requestPostPayload($url, $data = null, $headers = []) {
-		return self::client()->request('POST', $url, ['json' => $data, 'headers' => $headers]);
+		$result = self::client()->requestPostPayload($url, $data, $headers);
+		return $result->done();
 	}
 
 

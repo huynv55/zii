@@ -4,6 +4,7 @@ require realpath(__DIR__.'/inc/log.php');
 require realpath(__DIR__.'/inc/NotORMModel.php');
 require realpath(__DIR__.'/inc/DBModel.php');
 require realpath(__DIR__.'/inc/MongoDBModel.php');
+require realpath(__DIR__.'/inc/HttpClient.php');
 require realpath(__DIR__.'/inc/router.php');
 require realpath(__DIR__.'/inc/view.php');
 require realpath(__DIR__.'/inc/request.php');
