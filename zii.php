@@ -17,6 +17,4 @@ $argvs = $_SERVER['argv'];
 $action = !empty($argvs[1]) ? $argvs[1] : 'init';
 
 require realpath(__DIR__.'/consoles/'.$action.'.php');
-
-die();
 ?>

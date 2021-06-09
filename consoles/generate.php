@@ -142,4 +142,6 @@ class ActionIndex extends HomeController {
 
 // run generate
 Generate::process();
+
+die();
 ?>

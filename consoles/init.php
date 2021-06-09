@@ -55,4 +55,6 @@ if ($result) {
 } else {
 	echo "Error execute_sql ".realpath(__DIR__."/init.sql");
 }
+
+die();
 ?>
