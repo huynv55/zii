@@ -6,6 +6,7 @@ class Request {
     protected $router;
     protected $query;
     protected $data;
+    protected $files;
 
     public function __construct() {
         $this->method = $_SERVER['REQUEST_METHOD'];
@@ -13,6 +14,10 @@ class Request {
         $this->url = $_SERVER['REQUEST_URI'];
         $this->query = $_GET;
         $this->data = $_POST;
+        $this->files = $_FILES;
+        if ( empty($this->data) ) {
+            $this->data = $this->getJSONpayload();
+        }
     }
 
     public function getMethod() {
@@ -27,7 +32,7 @@ class Request {
         return $this->isMethod('POST');
     }
 
-    public function isGet($method) {
+    public function isGet() {
         return $this->isMethod('GET');
     }
 
@@ -39,12 +44,42 @@ class Request {
         return $this->url;
     }
 
-    public function getQuery() {
-        return $this->query;
+    public function getQuery($key = null) {
+        if (empty($key)) {
+            return $this->query;
+        } else {
+            if ( !empty($this->query[$key]) ) {
+                return $this->query[$key];
+            } else {
+                return '';
+            }
+        }
     }
 
-    public function getData() {
-        return $this->data;
+    public function getData($key = null) {
+        if(empty($key)) {
+            return $this->data;
+        } else {
+            if ( !empty($this->data[$key]) ) {
+                return $this->data[$key];
+            } else {
+                return '';
+            }
+        }
+        
+    }
+
+    public function getJSONpayload() {
+        $request_body = file_get_contents('php://input');
+        return json_decode($request_body, true);
+    }
+
+    public function getFileUploadByName($name) {
+        if ( !empty($this->files[$name]) ) {
+            return $this->files[$name];
+        } else {
+            return null;
+        }
     }
 }
 ?>

@@ -30,7 +30,8 @@ function log_exception( $e )
     $config = Config::get('log');
 
     if ( $config["debug"] == true )
-    {
+    {   
+        http_response_code(500);
         print "<div style='text-align: center;'>";
         print "<h2 style='color: rgb(190, 50, 50);'>Exception Occured:</h2>";
         print "<table style='width: 800px; display: inline-block;'>";

@@ -26,6 +26,62 @@ class Response {
         return $this;
     }
 
+    public function useLibJs($js) {
+        if(empty($this->data_into_view[View::LIB_JS])) {
+            $this->data_into_view[View::LIB_JS] = [];
+        }
+        if(is_array($js)) {
+            foreach ($js as $key => $j) {
+                $this->data_into_view[View::LIB_JS][] = $j;
+            }
+        } else if(is_string($js)) {
+            $this->data_into_view[View::LIB_JS][] = $js;
+        }
+        return $this;
+    }
+
+    public function useLibCss($css) {
+        if(empty($this->data_into_view[View::LIB_CSS])) {
+            $this->data_into_view[View::LIB_CSS] = [];
+        }
+        if(is_array($css)) {
+            foreach ($css as $key => $c) {
+                $this->data_into_view[View::LIB_CSS][] = $c;
+            }
+        } else if(is_string($css)) {
+            $this->data_into_view[View::LIB_CSS][] = $css;
+        }
+        return $this;
+    }
+
+    public function useJs($js) {
+        if(empty($this->data_into_view[View::JS])) {
+            $this->data_into_view[View::JS] = [];
+        }
+        if(is_array($js)) {
+            foreach ($js as $key => $j) {
+                $this->data_into_view[View::JS][] = $j;
+            }
+        } else if(is_string($js)) {
+            $this->data_into_view[View::JS][] = $js;
+        }
+        return $this;
+    }
+
+    public function useCss($css) {
+        if(empty($this->data_into_view[View::CSS])) {
+            $this->data_into_view[View::CSS] = [];
+        }
+        if(is_array($css)) {
+            foreach ($css as $key => $c) {
+                $this->data_into_view[View::CSS][] = $c;
+            }
+        } else if(is_string($css)) {
+            $this->data_into_view[View::CSS][] = $css;
+        }
+        return $this;
+    }
+
     public function setContent($res_content) {
         $this->content = $res_content;
         return $this;
@@ -44,6 +100,14 @@ class Response {
     public function addHeader($header, $value) {
         $this->headers[strval($header)] =  strval($value);
         return $this;
+    }
+
+    public function getDataIntoView($key = null) {
+        if(empty($key)) {
+            return $this->data_into_view;
+        } else {
+            return $this->data_into_view[$key];
+        }
     }
 
     public function setDataIntoView($data = []) {
@@ -86,22 +150,25 @@ class Response {
             header($header.": ".$value);
         }
         if( $this->type == self::TYPE_RESPONSE_REDIRECT ) {
-            http_response_code(301);
-            header("Location: ".$this->content);
-            exit();
+            if ($this->content != $_SERVER['REQUEST_URI'] ) {
+                http_response_code(301);
+                header("Location: ".$this->content);
+                exit();
+            }
         } else if ($this->type == self::TYPE_RESPONSE_VIEW) {
             header('Content-Type: text/html');
             http_response_code($this->status);
             echo $this->content;
             die();
-        } if ($this->type == self::TYPE_RESPONSE_JSON) {
+        } else if ($this->type == self::TYPE_RESPONSE_JSON) {
             header('Content-Type: application/json');
             http_response_code($this->status);
             echo $this->content;
             die();
+        } else {
+            http_response_code(500);
+            die('Empty');
         }
-        http_response_code(500);
-        die('Empty');
     }
 }
 ?>

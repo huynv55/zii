@@ -15,6 +15,9 @@
     
     <!-- Bootstrap core CSS -->
     <link href="<?= UrlHelper::asset('assets/dist/css/bootstrap.min.css'); ?>" rel="stylesheet">
+    <?php if(!empty(${View::LIB_CSS})) { foreach(${View::LIB_CSS} as $css) { ?>
+        <link href="<?= $css ?>" rel="stylesheet" type="text/css">
+    <?php } } ?>
     <style>
         .bd-placeholder-img {
             font-size: 1.125rem;
@@ -33,6 +36,9 @@
     
     <!-- Custom styles for this template -->
     <link href="<?= UrlHelper::asset('css/starter-template.css'); ?>" rel="stylesheet">
+    <?php if(!empty(${View::CSS})) { foreach(${View::CSS} as $css) { ?>
+    <link href="<?= $css ?>" rel="stylesheet">
+    <?php } } ?>
     </head>
 <body>
 
@@ -53,5 +59,11 @@
 </div>
 <script src="<?= UrlHelper::asset('assets/dist/js/jquery-3.6.0.min.js'); ?>"></script>
 <script src="<?= UrlHelper::asset('assets/dist/js/bootstrap.bundle.min.js'); ?>"></script>
+<?php if(!empty(${View::LIB_JS})) { foreach(${View::LIB_JS} as $js) { ?>
+<script type="text/javascript" src="<?= $js ?>"></script>
+<?php } } ?>
+<?php if(!empty(${View::JS})) { foreach(${View::JS} as $js) { ?>
+<script type="text/javascript" src="<?= $js ?>"></script>
+<?php } } ?>
 </body>
 </html>

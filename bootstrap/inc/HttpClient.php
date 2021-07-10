@@ -95,7 +95,7 @@ class HttpClient {
 
 	public function put($url, $put_fields = null, $headers = null) {
         try {
-            $res = $this->client->request('PUT', $url, ['form_params' => $post_fields, 'headers' => $headers]);
+            $res = $this->client->request('PUT', $url, ['form_params' => $put_fields, 'headers' => $headers]);
             $this->response = $res;
             $this->exception = null;
         } catch (Exception $e) {

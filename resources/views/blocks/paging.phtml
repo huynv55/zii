@@ -1,0 +1,16 @@
+<?php function renderAdminPaging($offset, $limit, $total) {?>
+<?php 
+    $maxPage = ( $total % $limit > 0 ) ? intval($total / $limit) + 1 : intval($total / $limit);
+    $page = intval($offset / $limit) + 1;
+?>
+<p class="mt-2">
+    <?php if($page > 1) { ?>
+        <a href="javascript:void(0)" data-limit="<?= $limit ?>" id="btn-pre">&nbsp;&nbsp;Previous&nbsp;&nbsp;</a>&nbsp;&nbsp;
+    <?php } ?>
+    <a href="javascript:void(0)" class="text-muted">&nbsp;&nbsp;Page <?= $page ?>&nbsp;&nbsp;</a>&nbsp;&nbsp;
+    <?php if($page < $maxPage) { ?>
+        <a href="javascript:void(0)" data-limit="<?= $limit ?>" id="btn-next">&nbsp;&nbsp;Next&nbsp;&nbsp;</a>
+    <?php } ?>
+    <strong style="float: right;"> Total : <?= $total ?> </strong>
+</p>
+<?php } ?>

@@ -123,7 +123,8 @@ abstract class DBModel {
 			return $this;
 		} else {
 			try {
-				$con = new PDO("mysql:host=". $dsn['host'] .";port=". $dsn['port'], $dsn['username'], $dsn['password'], $option);
+				$option[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES 'utf8mb4';";
+				$con = new PDO("mysql:host=". $dsn['host'] .";port=". $dsn['port'].";charset=utf8mb4", $dsn['username'], $dsn['password'], $option);
 				//$con->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 				$con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 				$con->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
@@ -494,7 +495,7 @@ abstract class DBModel {
 		$query = $query . " LIMIT {$this->limit}";
 		$query = $query. ";";
 		$this->query = $query;
-		return $this->execute($params);
+		return $this->execute([]);
 	}
 
 	private function convertCondition($field, $operator, $value) {
@@ -520,7 +521,7 @@ abstract class DBModel {
 		}
 	}
 
-	public function search($condition, $limit, $offset) {
+	public function search($fields, $condition, $limit, $offset) {
 		$query = [];
 		for($i = 0; $i < count($condition); $i++) {
 			foreach ($condition[$i] as $key => $value) {

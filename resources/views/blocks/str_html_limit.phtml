@@ -1,0 +1,11 @@
+<?php function strHtmlLimit($str, $limit) {?>
+<?php 
+    $textTruncated = '';
+    if( strlen($str) > $limit ) {
+        $textTruncated = substr($str, 0, $limit).'...';
+    } else {
+        $textTruncated = $str;
+    }
+?>
+<span><?= htmlspecialchars($textTruncated) ?></span>
+<?php } ?>
