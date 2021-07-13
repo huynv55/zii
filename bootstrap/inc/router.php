@@ -131,7 +131,8 @@ class Router {
 		$method = $this->getMethod();
 		$controller_route = '';
 		$action_route = '';
-		$tmp_paths = explode("/", $this->uri);
+		$tmp_uri = explode('?', $this->uri);
+		$tmp_paths = explode("/", $tmp_uri[0]);
 		$is_route = false;
 		do {
 			if (empty($tmp_paths)) {break;}
@@ -154,7 +155,7 @@ class Router {
 		} while (1);
 		$path_parts = json_decode(json_encode($tmp_paths), true);
 		if (!$is_route) {
-			$tmp_paths = explode("/", $this->uri);
+			$tmp_paths = explode("/", $tmp_uri[0]);
 			if(current($tmp_paths)){
 				$con = ucwords(current($tmp_paths),"-");
 				$controller_route = str_replace("-", "", $con);
