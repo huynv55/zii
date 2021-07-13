@@ -38,26 +38,30 @@ class ZiiAppFramework {
 		$controller = $this->router->getController();
 		//get method
 		$method = $this->router->getAction();
-		
 		$class = 'Action'.$method;
-
 		$this->loadControllerAndAction($controller, $method);
-		
-
 		if(method_exists($class, 'response')){
 			$reflection = new ReflectionMethod($class, 'response');
-
 			$controller_obj = new $class();
-
 			$params = $this->router->getParams();
-			
 			$controller_obj->beforeAction();
-			
-			$reflection->invokeArgs($controller_obj, $params);
-
+			$pass = array();
+			$args = $reflection->getParameters();
+			$index = 0;
+			foreach($args as $param) {
+				if(!empty($params[$index])) {
+					$pass[] = $params[$index];
+				} else if($param->isOptional()) {
+					$pass[] = $param->getDefaultValue();
+				} else {
+					$pass[] = '';
+				}
+				$index = $index + 1;
+			}
+			$reflection->invokeArgs($controller_obj, $pass);
 			$controller_obj->afterAction();
 		} else {
-			throw new Exception("Called method does not exists!");
+			throw new Exception("Called method $controller : $class does not exists!");
 		}
 	}
 }

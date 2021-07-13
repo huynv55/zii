@@ -34,7 +34,7 @@ abstract class DBModel {
 	}
 
 	public function strLimit($str, $limit = 50) {
-		if (strlen($str) <= 50) {
+		if (strlen($str) <= $limit) {
 			return $str;
 		} else {
 			return substr($str, 0, $limit)."...";
