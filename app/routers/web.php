@@ -4,5 +4,5 @@
 */
 Router::defaultMap('Home', 'Index');
 
-Router::get('/slug', 'Home', 'Slug');
+Router::get('slug', 'Home', 'Slug');
 ?>

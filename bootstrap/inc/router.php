@@ -10,6 +10,7 @@ class Router {
 	protected $params = [];
 
 	public static $routers = [];
+	public static $prefixs = [];
 
 	protected function getRequestUri() {
 		return $_SERVER['REQUEST_URI'];
@@ -87,7 +88,20 @@ class Router {
 		self::options($path, $controller_name, $action_name);
 	}
 
+	public static function prefix($prefix, $func) {
+		$prefix = trim($prefix);
+		array_push(self::$prefixs , trim($prefix, '/'));
+		$func();
+		if ( !empty(self::$prefixs) ) {
+			array_pop(self::$prefixs);
+		}
+	}
+
 	public static function addRouter($path, $type, $controller_name, $action_name) {
+		$path = trim($path);
+		if ( !empty(self::$prefixs) ) {
+			$path =  implode('/', self::$prefixs)."/".trim($path);
+		}
 		$path_parts = explode('/', $path);
 		$r = self::$routers;
 		$tmp_r = &$r;
