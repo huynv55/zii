@@ -15,6 +15,7 @@ abstract class DBModel {
 	private 	$limit 		= 10;
 	private 	$offset 	= 0;
 	private 	$orderArray = [];
+	protected	$dataTmp = [];
 
 	public static	$connection = null;
 
@@ -32,6 +33,19 @@ abstract class DBModel {
 		}
 		return $this;
 	}
+
+	public function getResult($key, $param, $func) {
+        if(empty($this->dataTmp[$key])) {
+        	$this->dataTmp[$key] = [];
+        }
+        if(isset($this->dataTmp[$key][$param])) {
+            return $this->dataTmp[$key][$param];
+        } else {
+            $result = $func();
+            $this->dataTmp[$key][$param] = $result;
+            return $result;
+        }
+    }
 
 	public function strLimit($str, $limit = 50) {
 		if (strlen($str) <= $limit) {
