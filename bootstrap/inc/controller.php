@@ -32,5 +32,15 @@ class Controller {
         //$route = new Router();
         return $GLOBALS['ZiiApp']->getRouter()->getController();
     }
+
+    public function initLoadModel($models = []) {
+        foreach ($models as $index => $file) {
+            $fileTmp = str_replace('.php', '', $file);
+            $tmp = explode('/', $fileTmp);
+            $class =  $tmp[count($tmp) - 1];
+            AppLoader::model($fileTmp.'.php');
+            $this->{$class} = new $class();
+        }
+    }
 }
 ?>
