@@ -3,15 +3,29 @@ class UrlHelper {
 
 	public static function asset($url = '') {
 		$host = $_SERVER['SERVER_NAME'];
-		$base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://{$host}";
+		$base_url = self::getProtocol() . "://{$host}";
 		$url = trim($url);
 		return $base_url."/".trim($url, '/');
 	}
 
 	public static function base() {
 		$host = $_SERVER['SERVER_NAME'];
-		$base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://{$host}";
+		$base_url = self::getProtocol() . "://{$host}";
 		return $base_url;
+	}
+
+	public static function hostname() {
+		return $_SERVER['SERVER_NAME'];
+	}
+
+	public static function getProtocol() {
+		if ( !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+			return 'https';
+		}
+		if ( !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ) {
+			return 'https';
+		}
+		return 'http';
 	}
 
 	public static function mix($file = null) {
