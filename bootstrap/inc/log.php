@@ -28,8 +28,19 @@ class Log {
 function log_exception( $e )
 {
     $config = Config::get('log');
+    if( is_cli() ) {
+        echo "".PHP_EOL;
+        echo "Exception Occured: ".PHP_EOL;
+        echo "Type :".get_class($e).PHP_EOL;
+        echo "Message :".$e->getMessage().PHP_EOL;
+        echo "File :".$e->getFile().PHP_EOL;
+        echo "Line :".$e->getLine().PHP_EOL;
+        $message = "Type: " . get_class( $e ) . "; Message: {$e->getMessage()}; File: {$e->getFile()}; Line: {$e->getLine()};";
+        Log::errorCronJob($message);
+        die();
+    }
 
-    if ( $config["debug"] == true )
+    if ( !empty($config["debug"]) )
     {   
         http_response_code(500);
         print "<div style='text-align: center;'>";
@@ -44,8 +55,16 @@ function log_exception( $e )
     else
     {
         $message = "Type: " . get_class( $e ) . "; Message: {$e->getMessage()}; File: {$e->getFile()}; Line: {$e->getLine()};";
-        Log::error($message);
-        header( "Location: {$config["error_page"]}" );
+        $url = UrlHelper::fullUrl();
+        $tmp = explode('?', $url);
+        if ($tmp[0] == $config["error_page"]) {
+            $html = View::render($config["error_page_view"], []);
+            echo $html;
+            die();
+        } else {
+            Log::error($message);
+            header( "Location: {$config["error_page"]}?url=".$url);
+        }
     }
     exit();
 }

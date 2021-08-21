@@ -8,7 +8,6 @@
         }
     ],
     "require": {
-        "vlucas/phpdotenv": "^4.1",
         "symfony/var-dumper": "^5.1",
         "respect/validation": "^2.0",
         "mongodb/mongodb": "^1.8",

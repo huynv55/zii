@@ -1,9 +1,9 @@
 <?php
 return [
-    'host'      => getenv("MONGO_HOST"),
-    'port'      => getenv("MONGO_PORT"),
-    'user'      => getenv("MONGO_USER"),
-    'password'  => getenv("MONGO_PASSWORD"),
+    'host'      => env("MONGO_HOST"),
+    'port'      => env("MONGO_PORT"),
+    'user'      => env("MONGO_USER"),
+    'password'  => env("MONGO_PASSWORD"),
     'authDB'    => ''
 ];
 ?>
