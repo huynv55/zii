@@ -28,7 +28,7 @@ class Log {
 function log_exception( $e )
 {
     $config = Config::get('log');
-    if( is_cli() ) {
+    if( function_exists('is_cli') && is_cli() ) {
         echo "".PHP_EOL;
         echo "Exception Occured: ".PHP_EOL;
         echo "Type :".get_class($e).PHP_EOL;
