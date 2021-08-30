@@ -7,26 +7,27 @@
 abstract class MongoDBModel {
     protected   $collection = '';
     protected   $db         = '';
-    private 	$query 		= '';
-	private 	$whereArray = [];
-	private 	$orArray 	= [];
-	private 	$limit 		= 10;
-	private 	$offset 	= 0;
-    private 	$orderArray = [];
-    protected	$dataTmp = [];
+    private     $query      = '';
+    private     $whereArray = [];
+    private     $orArray    = [];
+    private     $limit      = 10;
+    private     $offset     = 0;
+    private     $orderArray = [];
+    protected   $fillable   = [];
+    public static   $dataTmp = [];
 
     private     $mongoCollection = null;
-    public static	$connection = null;
+    public static   $connection = null;
 
-	private function getConfig() {
-		return Config::get("mongo");
+    private function getConfig() {
+        return Config::get("mongo");
     }
     
     public function __construct() {
-		if ( empty(self::$connection) ) {
-			$this->setConnection();
-		}
-		return $this;
+        if ( empty(self::$connection) ) {
+            $this->setConnection();
+        }
+        return $this;
     }
     
     public function setConnection($connect = null, $option = []) {
@@ -36,11 +37,11 @@ abstract class MongoDBModel {
         }
 
         $dsn = $this->getConfig();
-		$con = null;
-		if (empty($dsn)) {
-			self::$connection = $con;
-			return $this;
-		} else {
+        $con = null;
+        if (empty($dsn)) {
+            self::$connection = $con;
+            return $this;
+        } else {
             try {
                 if(!empty($dsn['user']) && !empty($dsn['password'])) {
                     if(empty($dsn['authDB'])) {
@@ -52,76 +53,100 @@ abstract class MongoDBModel {
                 }
                 $con = new \MongoDB\Client($url_con, $option);
                 
-			} catch (Exception $e) {
-				trigger_error( $e->getMessage(), E_USER_WARNING);
-			}
-			self::$connection = $con;
-			return $this;
+            } catch (Exception $e) {
+                trigger_error( $e->getMessage(), E_USER_WARNING);
+            }
+            self::$connection = $con;
+            return $this;
         }
     }
 
-	public function setCollection($col) {
-		if (is_string($col)) {
-			$this->collection = $col;
-		}
-		return $this;
+    public function setCollection($col) {
+        if (is_string($col)) {
+            $this->collection = $col;
+        }
+        return $this;
     }
 
     public function getCol() {
         return $this->mongoCollection;
     }
     
-	public function setDb($db) {
-		if (is_string($db)) {
-			$this->db = $db;
-		}
-		return $this;
-	}
-
-	public function getResult($key, $param, $func) {
-        if(empty($this->dataTmp[$key])) {
-        	$this->dataTmp[$key] = [];
+    public function setDb($db) {
+        if (is_string($db)) {
+            $this->db = $db;
         }
-        if(isset($this->dataTmp[$key][$param])) {
-            return $this->dataTmp[$key][$param];
+        return $this;
+    }
+
+    public function getResult($key, $param, $func) {
+        $key_tmp = $key."_".$param;
+        if(isset(self::$dataTmp[$key_tmp])) {
+            return self::$dataTmp[$key_tmp];
         } else {
             $result = $func();
-            $this->dataTmp[$key][$param] = $result;
+            self::$dataTmp[$key_tmp] = $result;
             return $result;
         }
     }
 
     public function initialize($option = array('typeMap' => array('root' => 'array', 'document' => 'array', 'array' => 'array'))) {
-		if (empty(self::$connection)) {
-			$this->setConnection();
+        if (empty(self::$connection)) {
+            $this->setConnection();
         }
         if (empty($this->mongoCollection)) {
             $mongo = self::$connection->selectCollection($this->db, $this->collection, $option);
             $this->mongoCollection = $mongo;
         }
-		$this->whereArray = [];
-		$this->orArray = [];
-		$this->query = '';
-		$this->limit = 10;
-		$this->offset = 0;
-		$this->orderArray = [];
-		return $this;
+        $this->whereArray = [];
+        $this->orArray = [];
+        $this->query = '';
+        $this->limit = 10;
+        $this->offset = 0;
+        $this->orderArray = [];
+        return $this;
+    }
+
+    public function prepareFillable($record) {
+        if (!empty($this->fillable)) {
+            foreach ($this->fillable as $field => $value) {
+                if($value == 'int') {
+                    if(isset($record[$field])) {
+                        $record[$field] = intval($record[$field]);
+                    }
+                } else if ($value == 'float') {
+                    if(isset($record[$field])) {
+                        $record[$field] = floatval($record[$field]);
+                    }
+                } else {
+                    if(isset($record[$field])) {
+                        $record[$field] = strval($record[$field]);
+                    }
+                }
+            }
+        }
+        return $record;
     }
 
     public function check() {
         if (empty(self::$connection)) {
-			trigger_error('Connection mongo is empty', E_USER_WARNING);
-			return false;
-		}
-		if (empty($this->mongoCollection)) {
-			trigger_error('Collection is empty', E_USER_WARNING);
-			return false;
+            trigger_error('Connection mongo is empty', E_USER_WARNING);
+            return false;
+        }
+        if (empty($this->mongoCollection)) {
+            trigger_error('Collection is empty', E_USER_WARNING);
+            return false;
         }
         return true;
     }
     
     public function findAll() {
         return $this->prepare()->find()->toArray();
+    }
+
+    public function insert($record) {
+        $ins = $this->prepareFillable($record);
+        return $this->prepare()->insertOne($ins);
     }
 
     public function prepare() {

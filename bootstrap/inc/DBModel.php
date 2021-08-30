@@ -15,7 +15,7 @@ abstract class DBModel {
 	private 	$limit 		= 10;
 	private 	$offset 	= 0;
 	private 	$orderArray = [];
-	protected	$dataTmp = [];
+	public static	$dataTmp = [];
 
 	public static	$connection = null;
 
@@ -35,14 +35,12 @@ abstract class DBModel {
 	}
 
 	public function getResult($key, $param, $func) {
-        if(empty($this->dataTmp[$key])) {
-        	$this->dataTmp[$key] = [];
-        }
-        if(isset($this->dataTmp[$key][$param])) {
-            return $this->dataTmp[$key][$param];
+		$key_tmp = $key."_".$param;
+        if(isset(self::$dataTmp[$key_tmp])) {
+            return self::$dataTmp[$key_tmp];
         } else {
             $result = $func();
-            $this->dataTmp[$key][$param] = $result;
+            self::$dataTmp[$key_tmp] = $result;
             return $result;
         }
     }
@@ -200,6 +198,7 @@ abstract class DBModel {
 	 */
 	public function execute($params = []) {
 		if($this->checkQuery()) {
+			//Log::debug($this->query);
 			try {
 				$stmt = self::$connection->prepare($this->query);
 				$stmt->execute($params);
@@ -448,30 +447,44 @@ abstract class DBModel {
 	}
 
 	/**
+	 * [beforeInsert trigger before action insert data]
+	 * @param  [type] $data [description]
+	 * @return [array]      [ $record prepare insert a new data ]
+	 */
+	public function beforeInsert($data) {
+		return $data;
+	}
+
+	/**
 	 * [insert description]
 	 * @param  [type] $data [description]
 	 * @return [type]       [description]
 	 */
 	public function insert($data, $return_record_inserted = true) {
+		$record = $this->beforeInsert($data);
+		if(empty($record)) {
+			return null;
+		}
 		$list_field = [];
 		$list_value = [];
 		$params     = [];
-		foreach ($data as $key => $value) {
+		foreach ($record as $key => $value) {
 			if ( in_array($key, $this->fillable) && $key != $this->primeKey) {
 				array_push($list_field, $key);
 				array_push($list_value, ':'.$key);
 				$params[$key] = $value;
 			}
 		}
-		$list_field  = implode(',', $list_field);
-		$list_value  = implode(',', $list_value);
+		$list_field  = implode(' , ', $list_field);
+		$list_value  = implode(' , ', $list_value);
 		$query       = "INSERT INTO {$this->db}.{$this->tableName} ({$list_field}) VALUES ({$list_value});";
 		$this->query = $query;
 		$stmt        = $this->execute($params);
 		if(!empty($stmt)) {
 			$last_id     = self::$connection->lastInsertId();
 			if($return_record_inserted) {
-				return $this->findById($last_id);
+				$res = $this->findById($last_id);
+				return $this->afterInsert($res);
 			} else {
 				return $last_id;
 			}
@@ -481,16 +494,39 @@ abstract class DBModel {
 		
 	}
 
+	/**
+	 * [afterInsert trigger after insert record]
+	 * @param  [type] $resutl [description]
+	 * @return [array]        [ result after insert database ]
+	 */
+	public function afterInsert($resutl) {
+		return $result;
+	}
+
+
+	/**
+	 * [beforeUpdate trigger before action update]
+	 * @param  [type] $data [description]
+	 * @return [type]       [description]
+	 */
+	public function beforeUpdate($data) {
+		return $data;
+	}
+
 	public function update($data) {
+		$record = $this->beforeUpdate($data);
+		if(empty($record)) {
+			return null;
+		}
 		$list_field_update = [];
 		$params     = [];
-		foreach ($data as $key => $value) {
+		foreach ($record as $key => $value) {
 			if ( in_array($key, $this->fillable) && $key != $this->primeKey) {
 				array_push($list_field_update, $key.' = :'.$key);
 				$params[$key] = $value;
 			}
 		}
-		$list_field_update = implode(',', $list_field_update);
+		$list_field_update = implode(' , ', $list_field_update);
 		$query = "UPDATE {$this->db}.{$this->tableName} SET {$list_field_update}";
 		$query = $query. " WHERE ".$this->buildCondition();
 		$query = $query. ";";
@@ -503,13 +539,26 @@ abstract class DBModel {
 		return !empty($res['counter']) ? intval($res['counter']) : 0;
 	}
 
+	/**
+	 * [beforeUpdate trigger before action delete]
+	 * @param  [type] $data [description]
+	 * @return [type]       [description]
+	 */
+	public function beforeDelete() {
+		return true;
+	}
+
 	public function delete() {
 		$query = "DELETE FROM {$this->db}.{$this->tableName}";
 		$query = $query. " WHERE ".$this->buildCondition();
 		$query = $query . " LIMIT {$this->limit}";
 		$query = $query. ";";
 		$this->query = $query;
-		return $this->execute([]);
+		if($this->beforeDelete()) {
+			return $this->execute([]);
+		} else {
+			return false;
+		}
 	}
 
 	private function convertCondition($field, $operator, $value) {
