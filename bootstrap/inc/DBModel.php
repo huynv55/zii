@@ -452,6 +452,8 @@ abstract class DBModel {
 	 * @return [array]      [ $record prepare insert a new data ]
 	 */
 	public function beforeInsert($data) {
+		// clear data cached
+		self::$dataTmp = [];
 		return $data;
 	}
 
@@ -496,10 +498,10 @@ abstract class DBModel {
 
 	/**
 	 * [afterInsert trigger after insert record]
-	 * @param  [type] $resutl [description]
+	 * @param  [type] $result [description]
 	 * @return [array]        [ result after insert database ]
 	 */
-	public function afterInsert($resutl) {
+	public function afterInsert($result) {
 		return $result;
 	}
 
@@ -510,6 +512,8 @@ abstract class DBModel {
 	 * @return [type]       [description]
 	 */
 	public function beforeUpdate($data) {
+		// clear data cached
+		self::$dataTmp = [];
 		return $data;
 	}
 
@@ -545,6 +549,8 @@ abstract class DBModel {
 	 * @return [type]       [description]
 	 */
 	public function beforeDelete() {
+		// clear data cached
+		self::$dataTmp = [];
 		return true;
 	}
 
