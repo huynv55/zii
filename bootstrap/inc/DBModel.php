@@ -3,27 +3,69 @@
  * Model class : connect and query in database
  */
 
-abstract class DBModel {
+abstract class DBModel
+{
+    /**
+     * @var string $primeKey model
+     */
 	protected	$primeKey 	= 'id';
+
+    /**
+     * @var array $fillable list of fields insert or select from mysql
+     */
 	protected	$fillable 	= [];
+
+    /**
+     * @var array $hidden list of fields hidden from results
+     */
 	protected	$hidden 	= [];
+
+    /**
+     * @var string $tableName
+     */
 	protected	$tableName 	= '';
+
+    /**
+     * @var string $db
+     */
 	protected	$db 		= '';
+
+    /**
+     * @var string $query sql string execute mysql
+     */
 	private 	$query 		= '';
+
+    /**
+     * @var array list of where conditions
+     */
 	private 	$whereArray = [];
+
+    /**
+     * @var array list of where or condition
+     */
 	private 	$orArray 	= [];
+
 	private 	$limit 		= 10;
 	private 	$offset 	= 0;
+
+    /**
+     * @var array list of order by
+     */
 	private 	$orderArray = [];
 	public static	$dataTmp = [];
 
+    /**
+     * @var null connection with mysql server
+     */
 	public static	$connection = null;
 
-	private function getConfig() {
+	private function getConfig()
+    {
 		return Config::get("db");
 	}
 
-	public function __construct() {
+	public function __construct()
+    {
 		$order = [
 			['field' => $this->primeKey, 'type' => 1]
 		]; 
@@ -34,18 +76,34 @@ abstract class DBModel {
 		return $this;
 	}
 
-	public function getResult($key, $param, $func) {
+    /**
+     * get result cached from execute query mysql
+     * @param $key key cached
+     * @param $param param cache
+     * @param $func function execute query mysql
+     * @return mixed result
+     */
+	public function getResult($key, $param, $func)
+    {
 		$key_tmp = $key."_".$param;
-        if(isset(self::$dataTmp[$key_tmp])) {
+        if(isset(self::$dataTmp[$key_tmp]))
+        {
             return self::$dataTmp[$key_tmp];
-        } else {
-            $result = $func();
+        }
+        else
+        {
+            $result = null;
+            if(is_callable($func))
+            {
+                $result = $func();
+            }
             self::$dataTmp[$key_tmp] = $result;
             return $result;
         }
     }
 
-	public function strLimit($str, $limit = 50) {
+	public function strLimit($str, $limit = 50)
+    {
 		if (strlen($str) <= $limit) {
 			return $str;
 		} else {
@@ -53,7 +111,8 @@ abstract class DBModel {
 		}
 	}
 
-	public function initialize() {
+	public function initialize()
+    {
 		if (empty(self::$connection)) {
 			$this->setConnection();
 		}
@@ -72,7 +131,8 @@ abstract class DBModel {
 	 * [setFillable mảng các cột có thể thao tác với db]
 	 * @param [type] $this
 	 */
-	public function setFillable($fillable) {
+	public function setFillable($fillable)
+    {
 		if (is_array($fillable)) {
 			$this->fillable = $fillable;
 		}
@@ -83,7 +143,8 @@ abstract class DBModel {
 	 * [setHidden mảng các thuộc tính ẩn đi khi lấy data]
 	 * @param [type] $this
 	 */
-	public function setHidden($hidden) {
+	public function setHidden($hidden)
+    {
 		if (is_array($hidden)) {
 			$this->hidden = $hidden;
 		}
@@ -94,7 +155,8 @@ abstract class DBModel {
 	 * [setTableName tên bảng dữ liệu]
 	 * @param [type] $this
 	 */
-	public function setTableName($tableName) {
+	public function setTableName($tableName)
+    {
 		if (is_string($tableName)) {
 			$this->tableName = $tableName;
 		}
@@ -105,25 +167,29 @@ abstract class DBModel {
 	 * [setDb tên database]
 	 * @param [type] $this
 	 */
-	public function setDb($db) {
+	public function setDb($db)
+    {
 		if (is_string($db)) {
 			$this->db = $db;
 		}
 		return $this;
 	}
 
-	public function getDb() {
+	public function getDb()
+    {
 		return $this->db;
 	}
 
-	public function getTableName() {
+	public function getTableName()
+    {
 		return $this->tableName;
 	}
 
 	/**
 	 * [setConnection connection sử dụng]
 	 */
-	public function setConnection($connect = null, $option = null) {
+	public function setConnection($connect = null, $option = null)
+    {
 		if (!empty($connect)) {
 			self::$connection = $connect;
 			return $this;
@@ -148,15 +214,20 @@ abstract class DBModel {
 		}
 	}
 
-	public function getConnection() {
+    /**
+     * @return PDO connection mysql server
+     */
+	public function getConnection() : PDO
+    {
 		return self::$connection;
 	}
 
 	/**
-	 * [checkConnection description]
-	 * @return [type] [description]
+	 * checkConnection description
+	 * @return bool true if not empty connection, false if empty connection
 	 */
-	private function checkConnection() {
+	private function checkConnection() : bool
+    {
 		if (empty(self::$connection)) {
 			trigger_error('Connection is empty', E_USER_WARNING);
 			return false;
@@ -165,10 +236,11 @@ abstract class DBModel {
 	}
 
 	/**
-	 * [checkQuery description]
-	 * @return [type] [description]
+	 * checkQuery description
+	 * @return bool true if can execute query, false if can not execute query
 	 */
-	private function checkQuery() {
+	private function checkQuery() : bool
+    {
 		if(!$this->checkConnection()) {
 			return false;
 		}
@@ -196,7 +268,8 @@ abstract class DBModel {
 	 * @param  array  $params [description]
 	 * @return [type]         [description]
 	 */
-	public function execute($params = []) {
+	public function execute($params = [])
+    {
 		if($this->checkQuery()) {
 			//Log::debug($this->query);
 			try {
@@ -216,7 +289,8 @@ abstract class DBModel {
 	 * [setQuery description]
 	 * @param [type] $query [description]
 	 */
-	public function setQuery($query) {
+	public function setQuery($query)
+    {
 		if ( $this->checkConnection() ) {
 			$this->query = $query;
 		}
@@ -224,14 +298,20 @@ abstract class DBModel {
 	}
 
 	/**
-	 * [get description]
-	 * @return [type] [description]
+	 * get description
+	 * @return mixed results execute sql string
 	 */
-	public function get($fields = []) {
+	public function get($fields = [])
+    {
 		return $this->makeQuerySelect($fields)->execute();
 	}
 
-	public function all($fields = []) {
+    /**
+     * all description
+     * @return array all results execute sql string
+     */
+	public function all($fields = [])
+    {
 		$stmt = $this->makeQuerySelect($fields)->execute();
 		if (!empty($stmt)) {
 			return $stmt->fetchAll();
@@ -240,7 +320,12 @@ abstract class DBModel {
 		}
 	}
 
-	public function first($fields = []) {
+    /**
+     * first description
+     * @return array first result execute sql string
+     */
+	public function first($fields = [])
+    {
 		$stmt = $this->makeQuerySelect($fields)->setLimit(1)->execute();
 		if (!empty($stmt)) {
 			return $stmt->fetch();
@@ -249,11 +334,17 @@ abstract class DBModel {
 		}
 	}
 
-	private function buildStrCondition($arrCondition, $type) {
+    /**
+     * buildStrCondition description
+     * @return string
+     */
+	private function buildStrCondition($arrCondition, $type)
+    {
 		$query = [];
 		foreach ($arrCondition as $key => $value) {
 			if(is_string($value['value'])) {
-				array_push($query, "{$value['field']} {$value['operator']} ".self::$connection->quote($value['value']));
+                $v = str_replace("'", "%%", $value['value']);
+				array_push($query, "{$value['field']} {$value['operator']} ".self::$connection->quote($value['value'] ));
 			} else if (is_null($value['value'])) {
 				array_push($query, "{$value['field']} {$value['operator']} NULL");
 			} else if (is_array($value['value'])){
@@ -272,11 +363,12 @@ abstract class DBModel {
 	}
 
 	/**
-	 * [buildCondition description]
-	 * @return [type] [description]
+	 * buildCondition description
+	 * @return string
 	 */
 	private function buildCondition() {
-		if (!empty($this->whereArray) && empty($this->orArray)) {
+		if (!empty($this->whereArray) && empty($this->orArray))
+        {
 			return $this->buildStrCondition($this->whereArray, "AND");
 		}
 		if (empty($this->whereArray) && !empty($this->orArray)) {
@@ -293,7 +385,12 @@ abstract class DBModel {
 		}
 	}
 
-	private function buildOrder() {
+    /**
+     * buildOrder description
+     * @return string
+     */
+	private function buildOrder()
+    {
 		$query = [];
 		foreach ($this->orderArray as $key => $value) {
 			if($value['type'] == 0) {
@@ -306,10 +403,12 @@ abstract class DBModel {
 	}
 
 	/**
-	 * [makeQuerySelect description]
-	 * @return [type] [description]
+	 * makeQuerySelect description
+     * @param array $fields
+	 * @return DBModel
 	 */
-	public function makeQuerySelect($fields) {
+	public function makeQuerySelect($fields)
+    {
 		$list_field = [];
 		$arr_fields = empty($fields) ? $this->fillable : $fields;
 		foreach ($arr_fields as $key => $value) {
@@ -334,7 +433,8 @@ abstract class DBModel {
 	 * [makeQueryCount description]
 	 * @return [type] [description]
 	 */
-	public function makeQueryCount() {
+	public function makeQueryCount()
+    {
 		$query = "SELECT COUNT({$this->primeKey}) as counter FROM {$this->db}.{$this->tableName}";
 		$query .= " WHERE " . $this->buildCondition();
 		$query .= ";";
@@ -342,127 +442,124 @@ abstract class DBModel {
 		return $this;
 	}
 
-	public function setWhereCondition($where) {
+	public function setWhereCondition($where)
+    {
 		$this->whereArray = $where;
 		return $this;
 	}
 
-	public function setOrCondition($where) {
+	public function setOrCondition($where)
+    {
 		$this->orArray = $where;
 		return $this;
 	}
 
-	public function resetCondition() {
+	public function resetCondition()
+    {
 		$this->orArray = [];
 		$this->whereArray = [];
 		return $this;
 	}
 
 	/**
-	 * [where description]
-	 * @param  [type] $field    [description]
-	 * @param  [type] $operator [description]
-	 * @param  [type] $value    [description]
-	 * @return [type]           [description]
+	 * where description
+	 * @param  string $field    field add into where condition
+	 * @param  string $operator operator add into where condition
+	 * @param  mixed $value    value add into where condition
+	 * @return DBModel
 	 */
-	public function where($field, $operator, $value) {
+	public function where($field, $operator, $value)
+    {
 		$this->whereArray = [];
 		array_push($this->whereArray, compact('field', 'operator', 'value'));
 		return $this;
 	}
 
 	/**
-	 * [andWhere description]
-	 * @param  [type] $field    [description]
-	 * @param  [type] $operator [description]
-	 * @param  [type] $value    [description]
-	 * @return [type]           [description]
+	 * andWhere description, muste be use after where function
+     * @param  string $field    field add into where condition
+     * @param  string $operator operator add into where condition
+     * @param  mixed $value    value add into where condition
+	 * @return DBModel
 	 */
-	public function andWhere($field, $operator, $value) {
+	public function andWhere($field, $operator, $value)
+    {
 		array_push($this->whereArray, compact('field', 'operator', 'value'));
 		return $this;
 	}
 
 	/**
-	 * [orWhere description]
-	 * @param  [type] $field    [description]
-	 * @param  [type] $operator [description]
-	 * @param  [type] $value    [description]
-	 * @return [type]           [description]
+	 * orWhere description
+     * @param  string $field    field add into or condition
+     * @param  string $operator operator add into or condition
+     * @param  mixed $value    value add into or condition
+	 * @return DBModel
 	 */
-	public function orWhere($field, $operator, $value) {
+	public function orWhere($field, $operator, $value)
+    {
 		array_push($this->orArray, compact('field', 'operator', 'value'));
 		return $this;
 	}
 
 	/**
-	 * [setLimit description]
-	 * @param [type] $limit [description]
+	 * setLimit description
+	 * @param int $limit
+     * @return DBModel
 	 */
-	public function setLimit($limit) {
+	public function setLimit($limit)
+    {
 		$this->limit = intval($limit);
 		return $this;
 	}
 
 	/**
-	 * [setOffset description]
-	 * @param [type] $offset [description]
+	 * setOffset description
+	 * @param int $offset
+     * @return DBModel
 	 */
-	public function setOffset($offset) {
+	public function setOffset($offset)
+    {
 		$this->offset = intval($offset);
 		return $this;
 	}
 
 	/**
-	 * [setOrderBy description]
-	 * @param [type] $arr [description]
+	 * setOrderBy description
+	 * @param array $arr
+     * @return DBModel
 	 */
-	public function setOrderBy($arr) {
+	public function setOrderBy($arr)
+    {
 		$this->orderArray = $arr;
 		return $this;
 	}
 
-	/**
-	 * [findById description]
-	 * @param  [type] $id [description]
-	 * @return [type]     [description]
-	 */
-	public function findById($id) {
-		$list_field = [];
-		foreach ($this->fillable as $key => $value) {
-			if ( !in_array($value, $this->hidden) ) {
-				array_push($list_field, $value);
-			}
-		}
-		$this->orArray = [];
-		$this->whereArray = [
-			["field" => $this->primeKey, "operator" => '=', "value" => $id]
-		];
-		$list_field  = implode(',', $list_field);
-		$query       = "SELECT {$list_field} FROM {$this->db}.{$this->tableName}";
-		$query       = $query . " WHERE " . $this->buildCondition();
-		$query       = $query . " LIMIT 1;";
-		$this->query = $query;
-		return $this->execute()->fetch();
+	public function findByPrimeryId($id)
+    {
+		return $this->initialize()->where($this->primeKey, '=', intval($id))->first();
 	}
 
 	/**
-	 * [beforeInsert trigger before action insert data]
-	 * @param  [type] $data [description]
-	 * @return [array]      [ $record prepare insert a new data ]
+	 * beforeInsert trigger before action insert data
+	 * @param  array $data record prepare insert 
+	 * @return array record data insert into database
+	 * @return null if prevent insert into database
 	 */
-	public function beforeInsert($data) {
+	public function beforeInsert($data)
+    {
 		// clear data cached
 		self::$dataTmp = [];
 		return $data;
 	}
 
 	/**
-	 * [insert description]
-	 * @param  [type] $data [description]
-	 * @return [type]       [description]
+	 * sql insert data into mysql server
+	 * @param  array $data
+     * @param  bool $return_record_inserted set true if want to return data into mysql, set false if want to return inserted id
+	 * @return mixed
 	 */
-	public function insert($data, $return_record_inserted = true) {
+	public function insert($data, $return_record_inserted = true)
+    {
 		$record = $this->beforeInsert($data);
 		if(empty($record)) {
 			return null;
@@ -485,7 +582,7 @@ abstract class DBModel {
 		if(!empty($stmt)) {
 			$last_id     = self::$connection->lastInsertId();
 			if($return_record_inserted) {
-				$res = $this->findById($last_id);
+				$res = $this->findByPrimeryId($last_id);
 				return $this->afterInsert($res);
 			} else {
 				return $last_id;
@@ -497,27 +594,31 @@ abstract class DBModel {
 	}
 
 	/**
-	 * [afterInsert trigger after insert record]
-	 * @param  [type] $result [description]
-	 * @return [array]        [ result after insert database ]
+	 * afterInsert trigger after insert record
+	 * @param  array $result data after insert database
+	 * @return array $result data used by client        
 	 */
-	public function afterInsert($result) {
+	public function afterInsert($result)
+    {
 		return $result;
 	}
 
 
 	/**
-	 * [beforeUpdate trigger before action update]
-	 * @param  [type] $data [description]
-	 * @return [type]       [description]
+	 * beforeInsert trigger before action update data
+	 * @param  array $data record prepare update 
+	 * @return array record data update into database
+	 * @return null if prevent update into database
 	 */
-	public function beforeUpdate($data) {
+	public function beforeUpdate($data)
+    {
 		// clear data cached
 		self::$dataTmp = [];
 		return $data;
 	}
 
-	public function update($data) {
+	public function update($data)
+    {
 		$record = $this->beforeUpdate($data);
 		if(empty($record)) {
 			return null;
@@ -538,7 +639,12 @@ abstract class DBModel {
 		return $this->execute($params);
 	}
 
-	public function count() {
+    /**
+     * execute count query result
+     * @return int count
+     */
+	public function count()
+    {
 		$res = $this->makeQueryCount()->execute()->fetch();
 		return !empty($res['counter']) ? intval($res['counter']) : 0;
 	}
@@ -548,13 +654,19 @@ abstract class DBModel {
 	 * @param  [type] $data [description]
 	 * @return [type]       [description]
 	 */
-	public function beforeDelete() {
+	public function beforeDelete()
+    {
 		// clear data cached
 		self::$dataTmp = [];
 		return true;
 	}
 
-	public function delete() {
+    /**
+     * execute delete query result
+     * @return int count
+     */
+	public function delete()
+    {
 		$query = "DELETE FROM {$this->db}.{$this->tableName}";
 		$query = $query. " WHERE ".$this->buildCondition();
 		$query = $query . " LIMIT {$this->limit}";
@@ -567,16 +679,17 @@ abstract class DBModel {
 		}
 	}
 
-	private function convertCondition($field, $operator, $value) {
+	private function convertCondition($field, $operator, $value)
+    {
 		if(is_string($value)) {
-			return "{$field} {$operator} '{$value}'";
+			return "{$field} {$operator} ".self::$connection->quote($value);
 		} else if (is_null($value)) {
 			return "{$field} {$operator} NULL";
 		} else if (is_array($value)) {
 			$str_tmp = [];
 			foreach ($value as $k => $v) {
 				if (is_string($v)) {
-					$str_tmp[] = "'".$v."'";
+					$str_tmp[] = self::$connection->quote($v);
 				} else if(is_null($v)) {
 					$str_tmp[] = "NULL";
 				} else {
@@ -590,7 +703,16 @@ abstract class DBModel {
 		}
 	}
 
-	public function search($fields, $condition, $limit, $offset) {
+    /**
+     * execute delete query result
+     * @param $fields list fields return info result
+     * @param $condition
+     * @param $limit
+     * @param $offset
+     * @return array results
+     */
+	public function search($fields, $condition, $limit, $offset)
+    {
 		$query = [];
 		for($i = 0; $i < count($condition); $i++) {
 			foreach ($condition[$i] as $key => $value) {
@@ -608,7 +730,9 @@ abstract class DBModel {
 		$conditions = implode(" AND ", $query);
 
 		$query_count = "SELECT COUNT({$this->primeKey}) as counter FROM {$this->db}.{$this->tableName}";
-		$query_count .= " WHERE " . $conditions;
+		if(!empty($conditions)) {
+			$query_count .= " WHERE " . $conditions;
+		}
 		$query_count .= ";";
 		$res = $this->setQuery($query_count)->execute()->fetch();
 		$total = !empty($res['counter']) ? intval($res['counter']) : 0;
@@ -622,7 +746,10 @@ abstract class DBModel {
 		}
 		$list_field = implode(',', $list_field);
 		$query_select = "SELECT {$list_field} FROM {$this->db}.{$this->tableName}";
-		$query_select .= " WHERE " . $conditions;
+		if(!empty($conditions)) {
+			$query_select .= " WHERE " . $conditions;
+		}
+		
 		if (!empty($this->orderArray)) {
 			$query_select .= " ORDER BY ". $this->buildOrder();
 		}
