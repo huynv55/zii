@@ -2,8 +2,10 @@
 /**
  * class Log debug
  */
-class Log {
-    public static function debug($msg) {
+class Log
+{
+    public static function debug($msg)
+    {
         $config = Config::get('log');
         file_put_contents(dirname(__FILE__)."/../../".$config['path_debug'], "", FILE_APPEND);
         $logfile = realpath(dirname(__FILE__)."/../../".$config['path_debug']);
@@ -12,7 +14,28 @@ class Log {
         error_log("\n", 3, $logfile);
     }
 
-    public static function error($msg) {
+    public static function debugCronJob($msg)
+    {
+        $config = Config::get('log');
+        file_put_contents(dirname(__FILE__)."/../../".$config['path_debug_cron'], "", FILE_APPEND);
+        $logfile = realpath(dirname(__FILE__)."/../../".$config['path_debug_cron']);
+        error_log(date('Y-m-d H:i:s').' : ', 3, $logfile);
+        error_log(print_r($msg, true), 3, $logfile);
+        error_log("\n", 3, $logfile);
+    }
+
+    public static function errorCronJob($msg)
+    {
+        $config = Config::get('log');
+        file_put_contents(dirname(__FILE__)."/../../".$config['path_error_cron'], "", FILE_APPEND);
+        $logfile = realpath(dirname(__FILE__)."/../../".$config['path_error_cron']);
+        error_log(date('Y-m-d H:i:s').' : ', 3, $logfile);
+        error_log(print_r($msg, true), 3, $logfile);
+        error_log("\n", 3, $logfile);
+    }
+
+    public static function error($msg)
+    {
         $config = Config::get('log');
         file_put_contents(dirname(__FILE__)."/../../".$config['path_error'], "", FILE_APPEND);
         $logfile = realpath(dirname(__FILE__)."/../../".$config['path_error']);
@@ -20,6 +43,86 @@ class Log {
         error_log(print_r($msg, true), 3, $logfile);
         error_log("\n", 3, $logfile);
     }
+
+    /**
+     ** Hàm gửi Message qua Telegram
+     *
+     * * @return bool
+     * 
+     * */
+    public static function sendLogTelegramMessage($message = '')
+    {
+        $chat_id = '-712778925';
+        $bot_token = "2086623008:AAEbN-S12rRTKzz72f_wu24BbDgP0MIyqgk";
+        // Xác đinh Endpoint gửi tin đi
+        $endpoint = 'https://api.telegram.org/bot' . $bot_token . '/sendMessage';
+        
+        // Xác định Request gửi tin đi
+        $params = [
+            'chat_id' => $chat_id,
+            'text'    => date('Y-m-d H:i:s'). " : ". UrlHelper::fullUrl(). " - ".$message
+        ];
+        // Request tới Telegram
+        $res = self::request("GET", $endpoint, $params);
+    }
+
+    public static function request($method, $url, $data = null, $headers = null) {
+        $ch = curl_init();
+        // don't return headers
+        curl_setopt($ch, CURLOPT_HEADER, false);
+
+        if ($method == 'POST') {
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            if ($data && !empty($data)) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            }
+
+        } else if ($method == 'GET') {
+            curl_setopt($ch, CURLOPT_HTTPGET, true);
+            if (!empty($data)) {
+                $request_url = $url . '?' . http_build_query($data);
+                curl_setopt($ch, CURLOPT_URL, $request_url);
+            } else {
+                curl_setopt($ch, CURLOPT_URL, $url);
+            }
+
+        } else {
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+            if ($data && !empty($data)) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            }
+        }
+        if ($headers && !empty($headers)) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        }
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 360);
+        $body = curl_exec($ch);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if (curl_errno($ch)) {
+            $msg = 'Error:' . curl_error($ch);
+            trigger_error( $msg, E_USER_WARNING);
+            return null;
+        }
+        curl_close($ch);
+        return compact('status', 'body');
+    }
+}
+
+function is_cli()
+{
+    if( defined('STDIN') ) {
+        return true;
+    }
+    if( empty($_SERVER['REMOTE_ADDR']) and !isset($_SERVER['HTTP_USER_AGENT']) and count($_SERVER['argv']) > 0)  {
+        return true;
+    } 
+    return false;
 }
 
 /**
@@ -28,7 +131,7 @@ class Log {
 function log_exception( $e )
 {
     $config = Config::get('log');
-    if( function_exists('is_cli') && is_cli() ) {
+    if( is_cli() ) {
         echo "".PHP_EOL;
         echo "Exception Occured: ".PHP_EOL;
         echo "Type :".get_class($e).PHP_EOL;
@@ -54,6 +157,7 @@ function log_exception( $e )
     }
     else
     {
+        
         $message = "Type: " . get_class( $e ) . "; Message: {$e->getMessage()}; File: {$e->getFile()}; Line: {$e->getLine()};";
         $url = UrlHelper::fullUrl();
         $tmp = explode('?', $url);
@@ -63,6 +167,7 @@ function log_exception( $e )
             die();
         } else {
             Log::error($message);
+            Log::sendLogTelegramMessage($message);
             header( "Location: {$config["error_page"]}?url=".$url);
         }
     }
