@@ -1,4 +1,5 @@
 <?php
+require __DIR__."/php_error.php";
 /**
  * class Log debug
  */
@@ -193,8 +194,15 @@ function check_for_fatal()
         log_error( $error["type"], $error["message"], $error["file"], $error["line"] );
     }
 }
-register_shutdown_function( "check_for_fatal" );
-set_error_handler( "log_error" );
-set_exception_handler( "log_exception" );
-ini_set( "display_errors", "off" );
-error_reporting( E_ALL );
+if(env("APP_ENV") != 'prod')
+{
+    \php_error\reportErrors();
+}
+else
+{
+    register_shutdown_function( "check_for_fatal" );
+    set_error_handler( "log_error" );
+    set_exception_handler( "log_exception" );
+    ini_set( "display_errors", "off" );
+    error_reporting( E_ALL );
+}

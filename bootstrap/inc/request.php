@@ -36,12 +36,17 @@ class Request
         return $this;
     }
 
-    function get_header($headerName = null)
+    public function get_header(string|null $headerName = null) : array|string|null
     {
         if(empty($headerName)) {
             return $this->request_headers;
         } else {
-            return $this->request_headers[$headerName] ?? null;
+            foreach($this->request_headers as $key => $header) {
+                if(strtolower($key) == strtolower($headerName)) {
+                    return $this->request_headers[$key];
+                }
+            }
+            return null;
         }
     }
 
