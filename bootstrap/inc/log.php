@@ -1,5 +1,4 @@
 <?php
-require __DIR__."/php_error.php";
 /**
  * class Log debug
  */
@@ -194,8 +193,9 @@ function check_for_fatal()
         log_error( $error["type"], $error["message"], $error["file"], $error["line"] );
     }
 }
-if(env("APP_ENV") != 'prod')
+if(env("APP_ENV") != 'prod' && env('APP_DEBUG') == 1)
 {
+    require __DIR__."/php_error.php";
     \php_error\reportErrors();
 }
 else
