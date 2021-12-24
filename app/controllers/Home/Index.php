@@ -1,7 +1,7 @@
 <?php
 AppLoader::controller('HomeController.php');
 
-class ActionIndex extends HomeController {
+class ActionHomeIndex extends HomeController {
     public function __construct() {
         parent::__construct();
     }

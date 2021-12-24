@@ -38,7 +38,7 @@ class ZiiAppFramework {
 		$controller = $this->router->getController();
 		//get method
 		$method = $this->router->getAction();
-		$class = 'Action'.$method;
+		$class = 'Action'.str_replace("/", "", $controller).$method;
 		$this->loadControllerAndAction($controller, $method);
 		if(method_exists($class, 'response')){
 			$reflection = new ReflectionMethod($class, 'response');

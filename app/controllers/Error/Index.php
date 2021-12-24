@@ -1,7 +1,7 @@
 <?php
 AppLoader::controller('ErrorController.php');
 
-class ActionIndex extends ErrorController {
+class ActionErrorIndex extends ErrorController {
 
     public function response() {
         $this->response->view("errors/500");

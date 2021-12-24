@@ -1,7 +1,7 @@
 <?php
 AppLoader::controller('HomeController.php');
 
-class ActionSlug extends HomeController {
+class ActionHomeSlug extends HomeController {
     public function __construct() {
         parent::__construct();
     }
