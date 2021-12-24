@@ -12,7 +12,7 @@ class ActionSlug extends HomeController {
         Log::debug("Page : ".$page);
         Log::debug("Slug : ".$slug);
         Log::debug("--------------------------------------");
-        $this->response->view("pages/home.phtml");
+        $this->response->view("pages/home");
     }
 }
 ?>

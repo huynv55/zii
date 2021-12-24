@@ -1,6 +1,6 @@
 <?php
 class View {
-    const VIEW_PATH = '/../../resources/views/';
+    const VIEW_PATH = '/../../resources/views';
     const VIEW_CACHED = '/../../resources/cache/';
     const VIEW_BLOCK_PATH = '/../../resources/views/blocks';
     const JS = 'javascript_src';
@@ -9,25 +9,22 @@ class View {
     const LIB_JS = 'javascript_lib_src';
     const LIB_CSS = 'css_lib_src';
 
-    public static function render($view, $data) {
-        if (is_array($data) && !empty($data)) {
-            extract($data);
-        }
-        ob_start();
-        $v = __DIR__.self::VIEW_PATH.$view;
-        include realpath($v);
-        $html = ob_get_clean();
-        $code = self::compilePHPTag($html);
-        $code = self::compileEchos($code);
-        $code = self::compileHtmlEchos($code);
-        //Log::debug($code);
-        ob_start();
-        eval('?>'.$code);
-        $code = ob_get_clean();
-        return self::minify_html($code);
+    public static $template_engin = null;
+
+    public static function render($view, $data)
+    {
+        //Log::debug($data);
+        $html = self::$template_engin->render($view, $data);
+        return self::minify_html($html);
     }
 
-    public static function requireBlock() {
+    public static function checkFileViewExist($f)
+    {
+        return is_file(__DIR__.self::VIEW_PATH.$f);
+    }
+
+    public static function requireBlock()
+    {
         $listFileBlocks = getListFileInDir(realpath(__DIR__.self::VIEW_BLOCK_PATH));
         foreach($listFileBlocks as $block) {
             require $block;
@@ -39,7 +36,8 @@ class View {
      * @param  [type] $code [description]
      * @return [type]       [description]
      */
-    static function compilePHPTag($code) {
+    static function compilePHPTag($code)
+    {
         return preg_replace('~\{%\s*(.+?)\s*\%}~is', "<?php $1 ?>", $code);
     }
 
@@ -48,7 +46,8 @@ class View {
      * @param  [type] $code [description]
      * @return [type]       [description]
      */
-    static function compileEchos($code) {
+    static function compileEchos($code)
+    {
         return preg_replace('~\{{\s*(.+?)\s*\}}~is', "<?php if(isset($1)) echo $1; ?>", $code);
     }
 
@@ -57,11 +56,13 @@ class View {
      * @param  [type] $code [description]
      * @return [type]       [description]
      */
-    static function compileHtmlEchos($code) {
+    static function compileHtmlEchos($code)
+    {
         return preg_replace('~\{@\s*(.+?)\s*\@}~is', '<?php if(isset($1)) echo htmlentities($1); ?>', $code);
     }
 
-    public static function minify_html($html) {
+    public static function minify_html($html)
+    {
         //return $html;
         $search = array(
             '/(\n|^)(\x20+|\t)/',
@@ -78,7 +79,7 @@ class View {
         return $html;
     }
 }
-
+View::$template_engin = new \League\Plates\Engine(realpath(__DIR__.View::VIEW_PATH), 'phtml');
 // load view block file
 View::requireBlock();
 ?>

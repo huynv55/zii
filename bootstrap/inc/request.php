@@ -80,28 +80,28 @@ class Request
         return $this->url;
     }
 
-    public function getQuery($key = null)
+    public function getQuery($key = null, $default_value = '')
     {
         if (empty($key)) {
             return $this->query;
         } else {
-            if ( !empty($this->query[$key]) ) {
+            if ( isset($this->query[$key]) ) {
                 return $this->query[$key];
             } else {
-                return '';
+                return $default_value;
             }
         }
     }
 
-    public function getData($key = null)
+    public function getData($key = null, $default_value = '')
     {
         if(empty($key)) {
             return $this->data;
         } else {
-            if ( !empty($this->data[$key]) ) {
+            if ( isset($this->data[$key]) ) {
                 return $this->data[$key];
             } else {
-                return '';
+                return $default_value;
             }
         }
         

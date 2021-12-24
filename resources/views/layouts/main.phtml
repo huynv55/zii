@@ -15,9 +15,11 @@
     
     <!-- Bootstrap core CSS -->
     <link href="<?= UrlHelper::asset('assets/dist/css/bootstrap.min.css'); ?>" rel="stylesheet">
-    <?php if(!empty(${View::LIB_CSS})) { foreach(${View::LIB_CSS} as $css) { ?>
+    <?php if(!empty(${View::LIB_CSS})) : ?>
+        <?php foreach(${View::LIB_CSS} as $css) : ?>
         <link href="<?= $css ?>" rel="stylesheet" type="text/css">
-    <?php } } ?>
+        <?php endforeach ?>
+    <?php endif ?>
     <style>
         .bd-placeholder-img {
             font-size: 1.125rem;
@@ -36,9 +38,11 @@
     
     <!-- Custom styles for this template -->
     <link href="<?= UrlHelper::asset('css/starter-template.css'); ?>" rel="stylesheet">
-    <?php if(!empty(${View::CSS})) { foreach(${View::CSS} as $css) { ?>
-    <link href="<?= $css ?>" rel="stylesheet">
-    <?php } } ?>
+    <?php if(!empty(${View::CSS})) : ?>
+        <?php foreach(${View::CSS} as $css) : ?>
+        <link href="<?= $css ?>" rel="stylesheet">
+        <?php endforeach ?>
+    <?php endif ?>
     </head>
 <body>
 
@@ -51,7 +55,7 @@
     </header>
     
     <main>
-    <?= $yield_content ?>
+    <?= $this->section("content") ?>
     </main>
     <footer class="pt-5 my-5 text-muted border-top">
         Created by the Bootstrap team &middot; &copy; 2021
@@ -59,11 +63,15 @@
 </div>
 <script src="<?= UrlHelper::asset('assets/dist/js/jquery-3.6.0.min.js'); ?>"></script>
 <script src="<?= UrlHelper::asset('assets/dist/js/bootstrap.bundle.min.js'); ?>"></script>
-<?php if(!empty(${View::LIB_JS})) { foreach(${View::LIB_JS} as $js) { ?>
-<script type="text/javascript" src="<?= $js ?>"></script>
-<?php } } ?>
-<?php if(!empty(${View::JS})) { foreach(${View::JS} as $js) { ?>
-<script type="text/javascript" src="<?= $js ?>"></script>
-<?php } } ?>
+<?php if(!empty(${View::LIB_JS})) : ?>
+    <?php foreach(${View::LIB_JS} as $js) : ?>
+    <script type="text/javascript" src="<?= $js ?>"></script>
+    <?php endforeach ?>
+<?php endif ?>
+<?php if(!empty(${View::JS})) : ?>
+    <?php foreach(${View::JS} as $js) : ?>
+    <script type="text/javascript" src="<?= $js ?>"></script>
+    <?php endforeach ?>
+<?php endif ?>
 </body>
 </html>

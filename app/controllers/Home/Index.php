@@ -12,7 +12,7 @@ class ActionIndex extends HomeController {
         Log::debug("Slug : ".$slug);
         Log::debug("Page : ".$page);
         Log::debug("--------------------------------------");
-        $this->response->view("pages/home.phtml", compact('page', 'slug'));
+        $this->response->view("pages/home", compact('page', 'slug'));
     }
 }
 ?>

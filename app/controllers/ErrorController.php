@@ -8,7 +8,7 @@ class ErrorController extends Controller {
 
     public function beforeAction() {
         parent::beforeAction();
-        $this->setLayout('');
+        //$this->setLayout('');
     }
 }
 ?>

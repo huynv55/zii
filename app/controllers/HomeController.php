@@ -8,7 +8,7 @@ class HomeController extends Controller {
 
     public function beforeAction() {
         parent::beforeAction();
-        $this->setLayout('layouts/main.phtml');
+        //$this->setLayout('layouts/main.phtml');
     }
 }
 ?>

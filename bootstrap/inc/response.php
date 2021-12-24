@@ -1,17 +1,42 @@
 <?php
-class Response {
+class Response
+{
     const TYPE_RESPONSE_VIEW = 'view';
     const TYPE_RESPONSE_JSON = 'json';
     const TYPE_RESPONSE_REDIRECT = 'redirect';
 
+    /**
+     * @var string $content content response
+     */
     private $content;
+
+    /**
+     * @var int $status Status response 200, 201, 301, 403, 404, 500
+     */
     private $status;
+
+    /**
+     * @var string $type type response TYPE_RESPONSE_VIEW, TYPE_RESPONSE_JSON, TYPE_RESPONSE_REDIRECT
+     */
     private $type;
+
+    /**
+     * @var array $headers array list of headers response
+     */
     private $headers;
+
+    /**
+     * @var string $layout use for TYPE_RESPONSE_VIEW
+     */
     private $layout;
+
+    /**
+     * @var array $data_into_view data pass into view
+     */
     private $data_into_view;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->content = '';
         $this->status = 200;
         $this->type = self::TYPE_RESPONSE_VIEW;
@@ -21,12 +46,19 @@ class Response {
         return $this;
     }
 
-    public function setLayout($view_layout) {
+    public function setLayout($view_layout)
+    {
         $this->layout = $view_layout;
         return $this;
     }
 
-    public function useLibJs($js) {
+    public function getLayout()
+    {
+        return $this->layout;
+    }
+
+    public function useLibJs($js)
+    {
         if(empty($this->data_into_view[View::LIB_JS])) {
             $this->data_into_view[View::LIB_JS] = [];
         }
@@ -40,7 +72,8 @@ class Response {
         return $this;
     }
 
-    public function useLibCss($css) {
+    public function useLibCss($css)
+    {
         if(empty($this->data_into_view[View::LIB_CSS])) {
             $this->data_into_view[View::LIB_CSS] = [];
         }
@@ -54,7 +87,8 @@ class Response {
         return $this;
     }
 
-    public function useJs($js) {
+    public function useJs($js)
+    {
         if(empty($this->data_into_view[View::JS])) {
             $this->data_into_view[View::JS] = [];
         }
@@ -68,7 +102,8 @@ class Response {
         return $this;
     }
 
-    public function useCss($css) {
+    public function useCss($css)
+    {
         if(empty($this->data_into_view[View::CSS])) {
             $this->data_into_view[View::CSS] = [];
         }
@@ -82,27 +117,32 @@ class Response {
         return $this;
     }
 
-    public function setContent($res_content) {
+    public function setContent($res_content)
+    {
         $this->content = $res_content;
         return $this;
     }
 
-    public function setType($res_type) {
+    public function setType($res_type)
+    {
         $this->type = $res_type;
         return $this;
     }
 
-    public function setStatus($res_status) {
+    public function setStatus($res_status)
+    {
         $this->status = intval($res_status);
         return $this;
     }
 
-    public function addHeader($header, $value) {
+    public function addHeader($header, $value)
+    {
         $this->headers[strval($header)] =  strval($value);
         return $this;
     }
 
-    public function getDataIntoView($key = null) {
+    public function getDataIntoView($key = null)
+    {
         if(empty($key)) {
             return $this->data_into_view;
         } else {
@@ -110,32 +150,32 @@ class Response {
         }
     }
 
-    public function setDataIntoView($data = []) {
+    public function setDataIntoView($data = [])
+    {
         foreach ($data as $key => $value) {
             $this->data_into_view[$key] = $value;
         }
     }
 
-    public function view($view, $data = []) {
+    public function view($view, $data = [])
+    {
         $this->setDataIntoView($data);
-        if(!empty($this->layout)) {
-            $this->data_into_view['yield_content'] = View::render($view, $this->data_into_view);
-            $html = View::render($this->layout, $this->data_into_view);
-        } else {
-            $html = View::render($view, $this->data_into_view);
-        }
+        $html = View::render($view, $this->data_into_view);
         return $this->setType(self::TYPE_RESPONSE_VIEW)->setContent($html);
     }
 
-    public function json($json_data, $status = 200) {
-        return $this->setType(self::TYPE_RESPONSE_JSON)->setStatus($status)->setContent(json_encode($json_data));
+    public function json($json_data, $status = 200)
+    {
+        return $this->setLayout('')->setType(self::TYPE_RESPONSE_JSON)->setStatus($status)->setContent(json_encode($json_data));
     }
 
-    public function redirect($url) {
+    public function redirect($url)
+    {
         return $this->setType(self::TYPE_RESPONSE_REDIRECT)->setStatus(301)->setContent($url);
     }
 
-    public function redirectRouter($controller, $action = 'index', $params = []) {
+    public function redirectRouter($controller, $action = 'index', $params = [])
+    {
         $url = UrlHelper::base() . "/" . $controller . "/" . $action;
         if(!empty($params)) {
             foreach ($params as $key => $value) {
@@ -145,7 +185,8 @@ class Response {
         return $this->redirect($url);
     }
 
-    public function send() {
+    public function send()
+    {
         foreach($this->headers as $header => $value) {
             header($header.": ".$value);
         }

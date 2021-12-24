@@ -63,40 +63,11 @@ class Log
             'text'    => date('Y-m-d H:i:s'). " : ". UrlHelper::fullUrl(). " - ".$message
         ];
         // Request tới Telegram
-        $res = self::request("GET", $endpoint, $params);
-    }
-
-    public static function request($method, $url, $data = null, $headers = null) {
         $ch = curl_init();
-        // don't return headers
         curl_setopt($ch, CURLOPT_HEADER, false);
-
-        if ($method == 'POST') {
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            if ($data && !empty($data)) {
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            }
-
-        } else if ($method == 'GET') {
-            curl_setopt($ch, CURLOPT_HTTPGET, true);
-            if (!empty($data)) {
-                $request_url = $url . '?' . http_build_query($data);
-                curl_setopt($ch, CURLOPT_URL, $request_url);
-            } else {
-                curl_setopt($ch, CURLOPT_URL, $url);
-            }
-
-        } else {
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-            if ($data && !empty($data)) {
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            }
-        }
-        if ($headers && !empty($headers)) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        }
+        curl_setopt($ch, CURLOPT_HTTPGET, true);
+        $request_url = $endpoint . '?' . http_build_query($params);
+        curl_setopt($ch, CURLOPT_URL, $request_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
@@ -104,13 +75,7 @@ class Log
         curl_setopt($ch, CURLOPT_TIMEOUT, 360);
         $body = curl_exec($ch);
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if (curl_errno($ch)) {
-            $msg = 'Error:' . curl_error($ch);
-            trigger_error( $msg, E_USER_WARNING);
-            return null;
-        }
         curl_close($ch);
-        return compact('status', 'body');
     }
 }
 
@@ -195,8 +160,8 @@ function check_for_fatal()
 }
 if(env("APP_ENV") != 'prod' && env('APP_DEBUG') == 1)
 {
-    require __DIR__."/php_error.php";
-    \php_error\reportErrors();
+    error_reporting( E_ALL );
+    ini_set( "display_errors", "off" );
 }
 else
 {
